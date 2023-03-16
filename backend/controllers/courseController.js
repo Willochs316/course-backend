@@ -1,9 +1,10 @@
 const asyncHandler = require("express-async-handler");
 
 const Course = require("../models/courseModel");
+const User = require("../models/userModel");
 
 const getCourses = asyncHandler(async (req, res) => {
-  const courses = await Course.find();
+  const courses = await Course.find({ user: req.user.id });
 
   res.status(200).json(courses);
 });
@@ -14,7 +15,10 @@ const setCourse = asyncHandler(async (req, res) => {
     throw new Error("Please add a text field");
   }
 
-  const course = await Course.create({ text: req.body.text });
+  const course = await Course.create({
+    text: req.body.text,
+    user: req.user.id,
+  });
 
   res.status(200).json(course);
 });
@@ -25,6 +29,21 @@ const updateCourse = asyncHandler(async (req, res) => {
   if (!course) {
     res.status(400);
     throw new Error("Course not found");
+  }
+
+  // Get the user before findByIdAndUpdate
+  const user = await User.findById(req.user.id);
+
+  // Check for user
+  if (!user) {
+    res.status(401);
+    throw new Error("User not found");
+  }
+
+  // Make sure the logged in user matches the course user
+  if (course.user.toString() !== user.id) {
+    res.status(401);
+    throw new Error("User not authorized");
   }
 
   const updatedCourse = await Course.findByIdAndUpdate(
@@ -39,14 +58,31 @@ const updateCourse = asyncHandler(async (req, res) => {
 });
 
 const deleteCourse = asyncHandler(async (req, res) => {
-  const deletedGoal = await Course.findByIdAndDelete(req.params.id);
+  const course = await Course.findById(req.params.id);
 
-  if (!deletedGoal) {
+  if (!course) {
     res.status(400);
     throw new Error("Course not found");
   }
 
-  res.status(200).json({ id: req.params.id });
+  // Get the user before findByIdAndUpdate
+  const user = await User.findById(req.user.id);
+
+  // Check for user
+  if (!user) {
+    res.status(401);
+    throw new Error("User not found");
+  }
+
+  // Make sure the logged in user matches the course user
+  if (course.user.toString() !== user.id) {
+    res.status(401);
+    throw new Error("User not authorized");
+  }
+
+  const deletedCourse = await Course.findByIdAndDelete(req.params.id);
+
+  res.status(200).json(deletedCourse);
 });
 
 module.exports = {
