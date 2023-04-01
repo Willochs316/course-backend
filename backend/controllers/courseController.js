@@ -3,12 +3,18 @@ const asyncHandler = require("express-async-handler");
 const Course = require("../models/courseModel");
 const User = require("../models/userModel");
 
+// @desc Get courses
+// @route GET /api/courses
+// @access Private
 const getCourses = asyncHandler(async (req, res) => {
   const courses = await Course.find({ user: req.user.id });
 
   res.status(200).json(courses);
 });
 
+// @desc Set course
+// @route POST /api/courses
+// @access Private
 const setCourse = asyncHandler(async (req, res) => {
   if (!req.body.text) {
     res.status(400);
@@ -23,6 +29,9 @@ const setCourse = asyncHandler(async (req, res) => {
   res.status(200).json(course);
 });
 
+// @desc Update course
+// @route PUT /api/courses/:id
+// @access Private
 const updateCourse = asyncHandler(async (req, res) => {
   const course = await Course.findById(req.params.id);
 
@@ -57,6 +66,9 @@ const updateCourse = asyncHandler(async (req, res) => {
   res.status(200).json(updatedCourse);
 });
 
+// @desc Delete course
+// @route DELETE /api/courses/:id
+// @access Private
 const deleteCourse = asyncHandler(async (req, res) => {
   const course = await Course.findById(req.params.id);
 
