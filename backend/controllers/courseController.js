@@ -40,17 +40,14 @@ const updateCourse = asyncHandler(async (req, res) => {
     throw new Error("Course not found");
   }
 
-  // Get the user before findByIdAndUpdate
-  const user = await User.findById(req.user.id);
-
   // Check for user
-  if (!user) {
+  if (!req.user) {
     res.status(401);
     throw new Error("User not found");
   }
 
   // Make sure the logged in user matches the course user
-  if (course.user.toString() !== user.id) {
+  if (course.user.toString() !== req.user.id) {
     res.status(401);
     throw new Error("User not authorized");
   }
@@ -77,17 +74,14 @@ const deleteCourse = asyncHandler(async (req, res) => {
     throw new Error("Course not found");
   }
 
-  // Get the user before findByIdAndUpdate
-  const user = await User.findById(req.user.id);
-
   // Check for user
-  if (!user) {
+  if (!req.user) {
     res.status(401);
     throw new Error("User not found");
   }
 
   // Make sure the logged in user matches the course user
-  if (course.user.toString() !== user.id) {
+  if (course.user.toString() !== req.user.id) {
     res.status(401);
     throw new Error("User not authorized");
   }
